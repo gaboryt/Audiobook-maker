@@ -12,6 +12,10 @@ class NovelScraper:
         self.start_url = start_url
         self.base_url = "https://novelbin.com"
         
+        # Extract novel name from URL
+        novel_path = start_url.split('/b/')[1].split('/')[0]
+        self.novel_name = ' '.join(word.capitalize() for word in novel_path.split('-'))
+        
         # Set up session with retry strategy
         self.session = requests.Session()
         retry_strategy = Retry(
@@ -71,12 +75,16 @@ class NovelScraper:
         # Create output directory if it doesn't exist
         os.makedirs('novel_chapters', exist_ok=True)
         
+        # Calculate chapter range
+        start_chapter = ((file_number - 1) * 50) + 1
+        end_chapter = start_chapter + len(chapters) - 1
+        
         # Save chapters to file
-        filename = f'novel_chapters/chapters_{file_number}.txt'
+        filename = f'novel_chapters/{self.novel_name} Chapter {start_chapter}-{end_chapter}.txt'
         with open(filename, 'w', encoding='utf-8') as f:
             for chapter in chapters:
                 f.write(chapter)
-                f.write("\n\n" + "="*50 + "\n\n")
+                f.write("\n\n")
         
         print(f"Saved {len(chapters)} chapters to {filename}")
 
